@@ -4,10 +4,17 @@
 
 #define relayPin 6
 #define spkrPin 3
+#define ledPin 4
 #define code 9658712
 
 unsigned long previousMillis0 = 0;
 unsigned long previousMillis1 = 0;
+long ledOnTime = 40;
+long ledOffTime = 100;
+boolean lightOn = false;
+
+
+
 
 RF24 radio(7, 8); // CE, CSN
 
@@ -16,7 +23,7 @@ boolean isArmed  = false;
 
 void setup() {
   pinMode(relayPin,OUTPUT);
-
+  pinMode(ledPin, OUTPUT);
   Serial.begin(9600);
   radio.begin();
   radio.openReadingPipe(0, address);
@@ -72,14 +79,18 @@ void Beep(int freq, int count, int interval, int duration) {
 void UpdateLights(unsigned long ms) {
 
     if(lightOn && ms - previousMillis0 >= ledOnTime) {
-
+      digitalWrite(ledPin, LOW);
       previousMillis0 = ms;
       lightOn = false;
     } else if(!lightOn && ms - previousMillis0 >= ledOffTime) {
-
+      digitalWrite(ledPin, HIGH);
       previousMillis0 = ms;
       lightOn = true;
     }
 
   }
+}
+
+void CheckInput() {
+
 }
