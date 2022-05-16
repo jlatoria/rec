@@ -6,6 +6,9 @@
 #define spkrPin 3
 #define code 9658712
 
+unsigned long previousMillis0 = 0;
+unsigned long previousMillis1 = 0;
+
 RF24 radio(7, 8); // CE, CSN
 
 const byte address[6] = "00001";
@@ -40,6 +43,10 @@ void loop() {
     }
   }
 
+  unsigned long currentMillis = millis();
+
+  UpdateLights(currentMillis);
+
 }
 
 void Success() {
@@ -59,5 +66,20 @@ void Beep(int freq, int count, int interval, int duration) {
     delay(duration);
     noTone(spkrPin);
     delay(interval);
+  }
+}
+
+void UpdateLights(unsigned long ms) {
+
+    if(lightOn && ms - previousMillis0 >= ledOnTime) {
+
+      previousMillis0 = ms;
+      lightOn = false;
+    } else if(!lightOn && ms - previousMillis0 >= ledOffTime) {
+
+      previousMillis0 = ms;
+      lightOn = true;
+    }
+
   }
 }
