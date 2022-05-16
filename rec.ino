@@ -4,10 +4,12 @@
 
 #define relayPin 6
 #define spkrPin 3
+#define code 9658712
 
 RF24 radio(7, 8); // CE, CSN
 
 const byte address[6] = "00001";
+boolean isArmed  = false;
 
 void setup() {
   pinMode(relayPin,OUTPUT);
@@ -26,25 +28,36 @@ void loop() {
     radio.read(&text, sizeof(text));
     String str = String(text);
     Serial.println(str);
-
-    if(str == "Hello World") {
-      for(int i = 0; i < 3; i++) {
-        tone(spkrPin, 1000);
-        delay(100);
-        noTone(spkrPin);
-        delay(200);
+    if(isArmed) {
+      if(str == code) {
+        Beep(1000, 5, 200, 200);
+        Beep(4000, 3, 50, 50);
+        digitalWrite(relayPin, HIGH);
+        Success();
+        delay(1000);
+        digitalWrite(relayPin, LOW);
       }
-      for(int i = 0; i < 3; i++) {
-        tone(spkrPin, 1000);
-        delay(50);
-        noTone(spkrPin);
-        delay(50);
-      }
-
-      digitalWrite(relayPin, HIGH);
-      delay(1000);
-      digitalWrite(relayPin, LOW);
     }
   }
 
+}
+
+void Success() {
+  const char text[] = "01 (Command Executed)";
+
+  radio.write(&text, sizeof(text));
+}
+
+void Arm() {
+  isArmed = true;
+}
+
+
+void Beep(int freq, int count, int interval, int duration) {
+  for(int i = 0; i < count; i++) {
+    tone(spkrPin, freq);
+    delay(duration);
+    noTone(spkrPin);
+    delay(interval);
+  }
 }
